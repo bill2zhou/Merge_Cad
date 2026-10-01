@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'" />
+  <title>GenCAD 文件合并工具</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <span class="app-title">GenCAD 文件合并工具</span>
+    <span class="app-ver">v1.02</span>
+  </header>
+
+  <main>
+    <!-- ===== 小板 CAD 处理 ===== -->
+    <section class="card">
+      <div class="card-title">小板 CAD 处理</div>
+
+      <div class="file-row">
+        <button class="btn blue" id="btnPickSub">选择小板</button>
+        <div class="path" id="subPath" title="点击右侧按钮选择小板 CAD 文件">:</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn green" id="btnOverturnX">X 轴翻转</button>
+        <button class="btn green" id="btnOverturnY">Y 轴翻转</button>
+        <button class="btn green" id="btnRotate90">旋转 90 度</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="xOffset">X 偏移量</label>
+          <input id="xOffset" type="text" class="num" placeholder="0" />
+          <span class="unit">mm</span>
+        </div>
+        <div class="field">
+          <label for="yOffset">Y 偏移量</label>
+          <input id="yOffset" type="text" class="num" placeholder="0" />
+          <span class="unit">mm</span>
+        </div>
+        <div class="field">
+          <label for="pinOffset">PIN 偏移</label>
+          <input id="pinOffset" type="text" class="num" placeholder="0" />
+        </div>
+        <div class="field">
+          <label for="postfix">后缀名</label>
+          <input id="postfix" type="text" class="str" placeholder="A" />
+        </div>
+      </div>
+
+      <div class="act-row">
+        <button class="btn act-green" id="btnMove">位置移动</button>
+      </div>
+    </section>
+
+    <!-- ===== 合并 CAD ===== -->
+    <section class="card">
+      <div class="card-title">合并 CAD</div>
+
+      <div class="file-row">
+        <button class="btn blue" id="btnPickMain">板一 CAD</button>
+        <div class="path" id="mainPath" title="主板文件（合并目标）">:</div>
+      </div>
+      <div class="file-row">
+        <button class="btn blue" id="btnPickChild">板二 CAD</button>
+        <div class="path" id="childPath" title="小板文件（待合并内容）">:</div>
+      </div>
+      <div class="file-row">
+        <button class="btn blue" id="btnPickOut">保存 CAD</button>
+        <div class="path" id="outPath" title="合并结果输出路径">:</div>
+      </div>
+
+      <div class="act-row">
+        <button class="btn act-green strong" id="btnMerge">开始合并</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== 进度弹窗 ===== -->
+  <div class="overlay hidden" id="overlay">
+    <div class="dialog">
+      <div class="dialog-title" id="dlgTitle">正在处理...</div>
+      <pre class="dialog-desc" id="dlgDesc"></pre>
+      <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+      <div class="dialog-status" id="dlgStatus">...</div>
+      <div class="dialog-actions">
+        <button class="btn blue" id="btnDone" disabled>完成</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

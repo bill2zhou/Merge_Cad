@@ -1,272 +1,229 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Security;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using merge_cad.Function;
-using Microsoft.Win32;
-
 
 namespace merge_cad
 {
     public partial class Form1 : Form
     {
-
-
-
-
-
         public Form1()
         {
             InitializeComponent();
-
-
         }
 
+        #region 文件选择事件
 
-
-
-
-
-
-        /*打开小板*/
+        /// <summary>
+        /// 打开小板文件
+        /// </summary>
         private void button1_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            var filePath = string.Empty;
-
-            openFileDialog.Filter = "CAD files (*.CAD)|*.CAD|All files (*.*)|*.*";
-            openFileDialog.FilterIndex = 1;
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                filePath = openFileDialog.FileName;
-                this.label7.Text = filePath;
-            }
-
+            SelectFile(label7, "小板");
         }
 
-        /*打开大板*/
+        /// <summary>
+        /// 打开大板文件
+        /// </summary>
         private void button2_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            var filePath = string.Empty;
-            openFileDialog.Filter = "CAD files (*.CAD)|*.CAD|All files (*.*)|*.*";
-            openFileDialog.FilterIndex = 1;
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                filePath = openFileDialog.FileName;
-                this.label8.Text = filePath;
-            }
-
+            SelectFile(label8, "大板");
         }
 
+        /// <summary>
+        /// 打开主板文件
+        /// </summary>
         private void button9_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            var filePath = string.Empty;
+            SelectFile(label10, "主板");
+        }
+
+        /// <summary>
+        /// 保存文件路径选择
+        /// </summary>
+        private void button7_Click(object sender, EventArgs e)
+        {
+            SaveFile(label9);
+        }
+
+        #endregion
+
+        #region 处理任务事件
+
+        /// <summary>
+        /// X 轴翻转
+        /// </summary>
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string subboard = label7.Text;
+            if (!ValidateFile(subboard, "小板")) return;
+
+            string newFile = GenerateOutputPath(subboard, "_X");
+            string[] parameters = new string[] { subboard, newFile };
+            ShowProgress(parameters, TaskType.OverturnX);
+        }
+
+        /// <summary>
+        /// Y 轴翻转
+        /// </summary>
+        private void button5_Click(object sender, EventArgs e)
+        {
+            string subboard = label7.Text;
+            if (!ValidateFile(subboard, "小板")) return;
+
+            string newFile = GenerateOutputPath(subboard, "_Y");
+            string[] parameters = new string[] { subboard, newFile };
+            ShowProgress(parameters, TaskType.OverturnY);
+        }
+
+        /// <summary>
+        /// 90 度旋转
+        /// </summary>
+        private void button6_Click(object sender, EventArgs e)
+        {
+            string subboard = label7.Text;
+            if (!ValidateFile(subboard, "小板")) return;
+
+            string newFile = GenerateOutputPath(subboard, "_R");
+            string[] parameters = new string[] { subboard, newFile };
+            ShowProgress(parameters, TaskType.Rotate90);
+        }
+
+        /// <summary>
+        /// 坐标移动
+        /// </summary>
+        private void button8_Click(object sender, EventArgs e)
+        {
+            string subboard = label7.Text;
+            string xoffset = textBox1.Text;
+            string yoffset = textBox2.Text;
+            string pinoffset = textBox3.Text;
+            string postfix = textBox4.Text;
+
+            if (!ValidateFile(subboard, "小板")) return;
+            if (string.IsNullOrEmpty(xoffset))
+            {
+                MessageBox.Show("X 偏移量不能为空");
+                return;
+            }
+            if (string.IsNullOrEmpty(yoffset))
+            {
+                MessageBox.Show("Y 偏移量不能为空");
+                return;
+            }
+            if (string.IsNullOrEmpty(pinoffset))
+            {
+                MessageBox.Show("PIN 偏移量不能为空");
+                return;
+            }
+            if (string.IsNullOrEmpty(postfix))
+            {
+                MessageBox.Show("后缀名不能为空");
+                return;
+            }
+
+            string newFile = GenerateOutputPath(subboard, "_O");
+            string[] parameters = new string[] { xoffset, yoffset, pinoffset, postfix, subboard, newFile };
+            ShowProgress(parameters, TaskType.MoveCoordinate);
+        }
+
+        /// <summary>
+        /// 文件合并
+        /// </summary>
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string subboard = label8.Text;
+            string motherboard = label10.Text;
+            string mergeBoard = label9.Text;
+
+            if (!ValidateFile(subboard, "小板")) return;
+            if (!ValidateFile(motherboard, "主板")) return;
+            if (string.IsNullOrEmpty(mergeBoard))
+            {
+                MessageBox.Show("请指定输出文件路径");
+                return;
+            }
+
+            string[] parameters = new string[] { subboard, motherboard, mergeBoard };
+            ShowProgress(parameters, TaskType.Merge);
+        }
+
+        #endregion
+
+        #region 辅助方法
+
+        /// <summary>
+        /// 选择文件
+        /// </summary>
+        private void SelectFile(Label label, string fileType)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "CAD files (*.CAD)|*.CAD|All files (*.*)|*.*";
             openFileDialog.FilterIndex = 1;
             openFileDialog.RestoreDirectory = true;
+            openFileDialog.Title = "选择" + fileType + "文件";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                filePath = openFileDialog.FileName;
-                this.label10.Text = filePath;
+                label.Text = openFileDialog.FileName;
             }
-
         }
 
-
-
-
-
-
-
-        /* 文件保存*/
-        private void button7_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 保存文件
+        /// </summary>
+        private void SaveFile(Label label)
         {
-            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
-        //    saveFileDialog.FileName = "me"; // Default file name
-            saveFileDialog.DefaultExt = ".CAD"; // Default file extension
-            saveFileDialog.Filter = "CAD files (*.CAD)|*.CAD"; // Filter files by extension
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.DefaultExt = "CAD";
+            saveFileDialog.Filter = "CAD files (*.CAD)|*.CAD";
+            saveFileDialog.Title = "保存文件";
 
-            // Show save file dialog box
-            Nullable<bool> result = saveFileDialog.ShowDialog();
-
-            // Process save file dialog box results
-            if (result == true)
-            {              // Save document
-                label9.Text = saveFileDialog.FileName;
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                label.Text = saveFileDialog.FileName;
             }
-
-
         }
 
-        /*x轴翻转*/
-        private void button4_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 验证文件路径
+        /// </summary>
+        private bool ValidateFile(string filePath, string fileName)
         {
-            string new_file = "";
-            string subboard = this.label7.Text;
-
-                  
-            if (subboard == ":")
+            if (string.IsNullOrEmpty(filePath) || filePath == ":")
             {
-                MessageBox.Show("小板参数不能为空");
-
+                MessageBox.Show(fileName + "参数不能为空");
+                return false;
             }
-            else
+            if (!File.Exists(filePath))
             {
-                string extension = Path.GetExtension(subboard);
-                string paths= Path.GetDirectoryName(subboard);
-                string filename = Path.GetFileNameWithoutExtension(subboard);
-                new_file = paths+"\\"+filename + "_X"+ extension;
-
-                string[] parameter = { subboard,new_file};
-                var ownedWindow = new Progress(parameter, "x");
-                ownedWindow.Owner = this;
-                if (ownedWindow.ShowDialog() == DialogResult.OK)
-                {
-
-                }
-
+                MessageBox.Show(fileName + "文件不存在：" + filePath);
+                return false;
             }
-
+            return true;
         }
 
-        /*y轴翻转*/
-        private void button5_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 生成输出文件路径
+        /// </summary>
+        private string GenerateOutputPath(string inputPath, string suffix)
         {
-            string new_file = "";
-            string subboard = this.label7.Text;
-
-            if (subboard == ":")
-            {
-                MessageBox.Show("小板参数不能为空");
-            }
-            else
-            {
-                string extension = Path.GetExtension(subboard);
-                string paths = Path.GetDirectoryName(subboard);
-                string filename = Path.GetFileNameWithoutExtension(subboard);
-                new_file = paths + "\\" + filename + "_Y" + extension;
- 
-                string[] parameter = { subboard, new_file  };
-                var ownedWindow = new Progress(parameter, "y");
-                ownedWindow.Owner = this;
-                if (ownedWindow.ShowDialog() == DialogResult.OK)
-                {
-
-                }
-            }
+            string extension = Path.GetExtension(inputPath);
+            string directory = Path.GetDirectoryName(inputPath);
+            string filename = Path.GetFileNameWithoutExtension(inputPath);
+            return directory + "\\" + filename + suffix + extension;
         }
 
-        /*旋转*/
-        private void button6_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 显示进度窗口
+        /// </summary>
+        private void ShowProgress(string[] parameters, TaskType taskType)
         {
-            string new_file = "";
-            string subboard = this.label7.Text;
-
-            if (subboard == ":")
-            {
-                MessageBox.Show("小板参数不能为空");
-
-            }
-            else
-            {
-                string extension = Path.GetExtension(subboard);
-                string paths = Path.GetDirectoryName(subboard);
-                string filename = Path.GetFileNameWithoutExtension(subboard);
-                new_file = paths + "\\" + filename + "_R" + extension;
-                string[] parameter = {subboard, new_file };
-                var ownedWindow = new Progress(parameter ,"r");
-                ownedWindow.Owner = this;
-               if (ownedWindow.ShowDialog() == DialogResult.OK)
-                {
-                }
-            }
-
-        }
-        /*移动*/
-        private void button8_Click(object sender, EventArgs e)
-        {
-            string new_file = "";
-            string xoffset = this.textBox1.Text;
-            string yoffset = this.textBox2.Text;
-            string pinoffset = this.textBox3.Text;
-            string postfix = this.textBox4.Text;
-            string subboard = this.label7.Text;
-
-            
-            if (subboard == ":" || string.IsNullOrEmpty(xoffset) || string.IsNullOrEmpty(yoffset) || string.IsNullOrEmpty(pinoffset) || string.IsNullOrEmpty(postfix) )
-            {
-                MessageBox.Show("参数不能为空");
-
-            }
-            else
-            {
-                string extension = Path.GetExtension(subboard);
-                string paths = Path.GetDirectoryName(subboard);
-                string filename = Path.GetFileNameWithoutExtension(subboard);
-                new_file = paths + "\\" + filename + "_O" + extension;
-
-
-                string[] parameter = { xoffset, yoffset, pinoffset, postfix, subboard, new_file};
-
-                var ownedWindow = new Progress(parameter,"o");
-                ownedWindow.Owner = this;
-                if (ownedWindow.ShowDialog() == DialogResult.OK)
-                {
-
-                }
-
-            }
+            Progress progressForm = new Progress(parameters, taskType);
+            progressForm.Owner = this;
+            progressForm.ShowDialog();
         }
 
-        /*合并*/
-        private void button3_Click(object sender, EventArgs e)
-        {
-
-            string subboard = this.label8.Text;
-            string motherboard = this.label10.Text;
-            string margeboard = this.label9.Text;
-
-
-            if ((subboard == ":") || (motherboard == ":") || (margeboard == ":"))
-            {
-                MessageBox.Show("参数不能为空");
-
-            }
-            else
-            {
-
-
-                string[] parameter = {  subboard, motherboard, margeboard };
-
-                var ownedWindow = new Progress(parameter, "m");
-                ownedWindow.Owner = this;
-                if (ownedWindow.ShowDialog() == DialogResult.OK)
-                {
-
-                }
-
-
-            }
-
-
-        }
-
-
+        #endregion
     }
 }

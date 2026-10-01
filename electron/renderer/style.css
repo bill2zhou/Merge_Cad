@@ -1,0 +1,244 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: #f2f3f5;
+  color: #333;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* ---- 顶部标题栏 ---- */
+.topbar {
+  background: linear-gradient(135deg, #0078d7 0%, #0a86e4 100%);
+  color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.app-title {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.app-ver {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+main {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- 卡片 ---- */
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 14px 16px 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0078d7;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eceff2;
+  margin-bottom: 10px;
+}
+
+/* ---- 文件选择行 ---- */
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+
+.path {
+  flex: 1;
+  min-width: 0;
+  background: #f0f1f3;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-size: 11px;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 28px;
+  line-height: 16px;
+  border: 1px solid #e2e4e8;
+}
+
+/* ---- 按钮 ---- */
+.btn {
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 7px 14px;
+  white-space: nowrap;
+  transition: filter 0.15s, transform 0.05s;
+}
+
+.btn:hover { filter: brightness(1.08); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.55; cursor: default; filter: none; transform: none; }
+
+.blue      { background: #0078d7; }
+.green     { background: #007850; }
+.act-green { background: #00a860; font-weight: 600; }
+.strong    { font-size: 14px; }
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.btn-row .btn { flex: 1; padding: 9px 0; }
+
+.act-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.act-row .btn { padding: 9px 26px; }
+
+/* ---- 参数表单 ---- */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  margin-bottom: 10px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 12px;
+  color: #444;
+  white-space: nowrap;
+}
+
+.field input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #cfd4da;
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  height: 28px;
+  text-align: right;
+}
+
+.field input.num{
+  flex: none;       /* 取消撑满 */
+  width: 80px;      /* 改成你想要的宽度 */
+}
+
+.field input.str{
+   align-items: left;
+  flex: none;       /* 取消撑满 */
+  width: 80px;      /* 改成你想要的宽度 */
+}
+
+.field input:focus {
+  border-color: #0078d7;
+  box-shadow: 0 0 0 2px rgba(0, 120, 215, 0.18);
+}
+
+.unit {
+  font-size: 11px;
+  color: #8a9199;
+}
+
+/* ---- 进度弹窗 ---- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.overlay.hidden { display: none; }
+
+.dialog {
+  width: 400px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px 22px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+.dialog-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.dialog-desc {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 14px;
+  font-family: "Microsoft YaHei UI", Consolas, monospace;
+  word-break: break-all;
+  white-space: pre-wrap;
+  max-height: 90px;
+  overflow-y: auto;
+}
+
+.bar {
+  height: 10px;
+  background: #e6e9ec;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #0078d7, #00b0f0);
+  border-radius: 6px;
+  transition: width 0.15s ease;
+}
+
+.dialog-status {
+  font-size: 13px;
+  margin-bottom: 14px;
+  min-height: 20px;
+}
+
+.dialog-status.ok  { color: #00a860; }
+.dialog-status.err { color: #c23b2e; }
+
+.dialog-actions {
+  text-align: right;
+}
